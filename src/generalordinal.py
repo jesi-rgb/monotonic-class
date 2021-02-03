@@ -24,7 +24,7 @@ múltiple.
 '''
 
 
-def split_subsets(data, target):
+def split_and_train(data, target=None, model=None):
     '''Define subsets for a given dataset. It figures out
     how many factors there are in the target value and
     subsets the original dataset based on that, returning
@@ -39,12 +39,23 @@ def split_subsets(data, target):
     # the last one
     subsets = []
     for i in range(0, len(unique_target)-1):
+        # binarize each dataset and save it to a list
         binary_target = np.where(target==unique_target[i], 0, 1)
         binary_subset = np.array(list(zip(data, binary_target)), dtype='object')
-        print(binary_subset)
-        # subsets.append(binary_subset)
+        subsets.append(binary_subset)
 
-    # print(subsets)
+    if(model is None):
+        model = DecisionTreeClassifier(criterion = "entropy", random_state = 100, max_depth=3, min_samples_leaf=5)
+
+    
+    models = []
+    for subset in subsets:
+        X = list(zip(*subset))[0]
+        Y = list(zip(*subset))[1]
+        fit_model = model.fit(X, Y)
+        models.append(fit_model)
+
+    return models
 
 
 
@@ -59,4 +70,5 @@ if __name__ == "__main__":
     data = load_iris().data
     target = load_iris().target
 
-    split_subsets(data, target)
+    split_and_train(data, target=target)
+    predict(data, models)
