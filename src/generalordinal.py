@@ -6,13 +6,27 @@ from sklearn.metrics import accuracy_score
 from sklearn import tree
 from sklearn.datasets import load_iris
 
+'''
+Se implementará una función que recibirá un data set 
+como parámetro y será capaz de formar los data sets 
+binarios derivados a partir del número de clases del 
+data set original. 
 
+Así mismo, lanzará un clasificador diferente al J48 
+(a elección por el estudiante) para cada uno y 
+devolverá una colección de modelos construidos.
 
+Una segunda función recibirá dicha colección y 
+será capaz de predecir un ejemplo (o un conjunto 
+de ejemplos) a partir de los mismos usando la 
+cascada de probabilidades que define el modelo 
+múltiple.
+'''
 
 
 def split_subsets(data, target):
     '''Define subsets for a given dataset. It figures out
-    how many factors there are in the target value and 
+    how many factors there are in the target value and
     subsets the original dataset based on that, returning
     the subsets.'''
 
@@ -25,10 +39,12 @@ def split_subsets(data, target):
     # the last one
     subsets = []
     for i in range(0, len(unique_target)-1):
-        indices = np.where(target == unique_target[i])
-        subsets.append(data[indices])
+        binary_target = np.where(target==unique_target[i], 0, 1)
+        binary_subset = np.array(list(zip(data, binary_target)), dtype='object')
+        print(binary_subset)
+        # subsets.append(binary_subset)
 
-    print(subsets)
+    # print(subsets)
 
 
 
