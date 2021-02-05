@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy.io import arff
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -58,28 +59,33 @@ def split_and_train(data, target=None, model=None):
 
 def predict_ensemble(data_points, labels, models):
 
+    rows = dict()
     if(len(models) == 2):
         p_class_1 = models[0].predict_proba(data_points)[:,0]
         p_class_2 = 1 - models[1].predict_proba(data_points)[:,1]
         p_class_3 = models[1].predict_proba(data_points)[:,1]
         
         rows = {labels[0]: p_class_1, labels[1]: p_class_2, labels[2]: p_class_3}
-        df = pd.DataFrame.from_dict(rows)
-        return df.idxmax(axis=1)
+        
 
     else:
         rows = dict()
         #first case
-        rows = rows.update({labels[0]: models[0].predict_proba(data_points)[:,0]})
+        rows.update({labels[0] : models[0].predict_proba(data_points)[:,0]})
 
         # middle cases (change * for -)
-        for i in range(1, len(labels)-2):
-            rows.update({labels[i]: models[i-1].predict_proba(data_points)[:,1] * models[i].predict_proba(data_points)[:0]})
+        for i in range(1, len(labels)-1):
+            rows.update({labels[i] : models[i-1].predict_proba(data_points)[:,1] * models[i].predict_proba(data_points)[:,0]})
 
         #last case
-        rows.update({labels[len(labels)]: models[len(labels)-1].predict_proba(data_points)[:,1]})
 
-        print(rows)
+        rows.update({labels[-1] : models[-1].predict_proba(data_points)[:,1]})
+
+
+    df = pd.DataFrame.from_dict(rows)
+    print(df.idxmax(axis=1))
+    return df.idxmax(axis=1)
+
         
 
         
@@ -91,8 +97,15 @@ def predict_ensemble(data_points, labels, models):
 
 
 if __name__ == "__main__":
-    data = load_iris().data
-    target = load_iris().target
+    # iris = load_iris().data
+    # target = load_iris().target
+
+    data = arff.loadarff('data/era.arff')
+    df = pd.DataFrame(data[0])
+    
+    target = df.iloc[:,-1].to_numpy()
+    data = df.iloc[:,:-1].to_numpy()
+
 
     models = split_and_train(data, target=target)
     predict_ensemble(data, np.unique(target), models)
