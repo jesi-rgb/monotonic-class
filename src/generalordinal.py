@@ -68,8 +68,18 @@ def predict_ensemble(data_points, labels, models):
         return df.idxmax(axis=1)
 
     else:
-        pass
+        rows = dict()
+        #first case
+        rows = rows.update({labels[0]: models[0].predict_proba(data_points)[:,0]})
 
+        # middle cases (change * for -)
+        for i in range(1, len(labels)-2):
+            rows.update({labels[i]: models[i-1].predict_proba(data_points)[:,1] * models[i].predict_proba(data_points)[:0]})
+
+        #last case
+        rows.update({labels[len(labels)]: models[len(labels)-1].predict_proba(data_points)[:,1]})
+
+        print(rows)
         
 
         
