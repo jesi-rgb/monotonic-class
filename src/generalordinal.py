@@ -109,15 +109,17 @@ def predict_ensemble(data_points, labels, models):
 
 
 if __name__ == "__main__":
-    # iris = load_iris().data
-    # target = load_iris().target
+    iris = load_iris().data
+    target = load_iris().target
 
-    data = arff.loadarff('data/era.arff')
-    df = pd.DataFrame(data[0])
+    # data = arff.loadarff('data/era.arff')
+    # df = pd.DataFrame(data[0])
     
-    target = df.iloc[:,-1].to_numpy()
-    data = df.iloc[:,:-1].to_numpy()
+    # target = df.iloc[:,-1].to_numpy()
+    # data = df.iloc[:,:-1].to_numpy()
 
 
     models = split_and_train(data, target=target)
-    predict_ensemble(data, np.unique(target), models)
+    predictions = predict_ensemble(data, np.unique(target), models)
+
+    print(np.count_nonzero(target == predictions)/len(target))
