@@ -54,25 +54,21 @@ def split_and_train(data, target=None, model=None):
         models.append(fit_model)
 
     # return the list of models trained in each binary subset
-    return dict(zip(unique_target, models))
+    return models
 
-def predict_ensemble(data_points, named_models):
+def predict_ensemble(data_points, labels, models):
 
-
-    names = list(named_models.keys())
-    models = list(named_models.values())
-    k = len(models)
-
-    if(k == 2):
-        predict_class_1 = models[0].predict_proba(data_points)[:,0]
-        predict_class_2 = models[1].predict_proba(data_points)[:,1]
+    if(len(models) == 2):
+        p_class_1 = models[0].predict_proba(data_points)[:,0]
+        p_class_2 = 1 - models[1].predict_proba(data_points)[:,1]
+        p_class_3 = models[1].predict_proba(data_points)[:,1]
         
-        named_1 = list(zip(np.repeat(names[0], len(predict_class_1)), predict_class_1))
-        named_2 = list(zip(np.repeat(names[1], len(predict_class_2)), predict_class_2))
-        
-        rows = {names[0]: predict_class_1, names[1]: predict_class_2}
+        rows = {labels[0]: p_class_1, labels[1]: p_class_2, labels[2]: p_class_3}
         df = pd.DataFrame.from_dict(rows)
-        df.idxmax(axis=1)
+        return df.idxmax(axis=1)
+
+    else:
+        pass
 
         
 
@@ -89,4 +85,4 @@ if __name__ == "__main__":
     target = load_iris().target
 
     models = split_and_train(data, target=target)
-    predict_ensemble(data, models)
+    predict_ensemble(data, np.unique(target), models)
