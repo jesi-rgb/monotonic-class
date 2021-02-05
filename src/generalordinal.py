@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
+from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-from sklearn import tree
 from sklearn.datasets import load_iris
 
 '''
@@ -42,8 +41,6 @@ def split_and_train(data, target=None, model=None):
         binary_subset = np.array(list(zip(data, binary_target)), dtype='object')
         subsets.append(binary_subset)
 
-    print(subsets)
-
     # if no model is provided, we propose a Tree Classifier
     if(model is None):
         model = DecisionTreeClassifier(criterion = "entropy", random_state = 100, max_depth=3, min_samples_leaf=5)
@@ -60,25 +57,27 @@ def split_and_train(data, target=None, model=None):
     return dict(zip(unique_target, models))
 
 def predict_ensemble(data_points, named_models):
-    k = len(named_models)
-    # first model
-    # first_model = models[0].predict_proba(data_points)
-    # print(1-first_model[0][0])
-    names = named_models.keys
-    models = named_models.values
-
-    if(k==2):
-        pass
-        # predict_class_1 = 1-models[0].predict_proba(data_points)[:,0]
-        # predict_class_2 = models[1].predict_proba(data_points)[:,0]
-        # a = list(zip(predict_class_1, predict_class_2))
 
 
+    names = list(named_models.keys())
+    models = list(named_models.values())
+    k = len(models)
 
-    else:
-        pass
-        # predictions = [1-model.predict_proba(data_points)[:,0] for model in models]
-        # print(predictions)
+    if(k == 2):
+        predict_class_1 = models[0].predict_proba(data_points)[:,0]
+        predict_class_2 = models[1].predict_proba(data_points)[:,1]
+        
+        named_1 = list(zip(np.repeat(names[0], len(predict_class_1)), predict_class_1))
+        named_2 = list(zip(np.repeat(names[1], len(predict_class_2)), predict_class_2))
+        
+        rows = {names[0]: predict_class_1, names[1]: predict_class_2}
+        df = pd.DataFrame.from_dict(rows)
+        df.idxmax(axis=1)
+
+        
+
+        
+
 
 
 
