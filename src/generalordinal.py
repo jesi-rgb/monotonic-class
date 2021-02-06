@@ -137,16 +137,15 @@ def load_arff(path, target_index=-1):
     in ndarray form.
     '''
 
+    # helper functions from scipy
     arff_data = arff.loadarff(path)
     df = pd.DataFrame(arff_data[0])
-    
+
+    # take the target column    
     target = df.iloc[:,target_index].to_numpy()
 
-    # Necessary check since df.drop does not admit -1 indexing.
-    if(target_index == -1):
-        data = df[df.iloc[:, :-1]]
-    else:
-        data = df[df.drop(columns=[target_index], axis=1)].to_numpy()
+    # take everything but the target column
+    data = df.drop(df.columns[target_index], axis=1).to_numpy()
 
     return data, target
 
@@ -157,9 +156,8 @@ if __name__ == "__main__":
     # target = load_iris().target
 
 
-
     data, target = load_arff("data/era.arff", -1)
-    print(data)
+
 
     models = split_and_train(data, target=target)
 
