@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from scipy.io import arff
+import codecs
 from operator import mul, sub
-from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.datasets import load_iris
@@ -128,9 +128,9 @@ def load_arff(path, target_index=-1):
     column via `target_index`. By default is set as the
     last column.
 
-    > path: string. Path to the .arff file.
+    > `path`: string. Path to the .arff file.
 
-    > target_index: int. Index of the column in which the
+    > `target_index`: int. Index of the column in which the
     target variable lives.
 
     > returns the data and the target in different variables
@@ -138,8 +138,10 @@ def load_arff(path, target_index=-1):
     '''
 
     # helper functions from scipy
-    arff_data = arff.loadarff(path)
-    df = pd.DataFrame(arff_data[0])
+    df = None
+    with codecs.open(path, 'r', encoding='utf8') as raw_data:
+        arff_data = arff.loadarff(raw_data)
+        df = pd.DataFrame(arff_data[0])
 
     # take the target column    
     target = df.iloc[:,target_index].to_numpy()
@@ -155,13 +157,13 @@ if __name__ == "__main__":
     # iris = load_iris().data
     # target = load_iris().target
 
+    # load arff data
+    data, target = load_arff("Material/esl.arff", target_index=-1)
 
-    data, target = load_arff("data/era.arff", target_index=-1)
-    print(target)
-
-
+    # split the data and train the models
     models = split_and_train(data, target=target)
 
+    # make cascading prediction
     predictions = predict_ensemble(data, np.unique(target), models, operator=sub)
 
     # very basic score measure
