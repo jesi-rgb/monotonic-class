@@ -121,20 +121,45 @@ def predict_ensemble(data_points, labels, models, operator=mul):
     return df.idxmax(axis=1).to_numpy()
 
 
+def load_arff(path, target_index=-1):
+    '''
+    Helper function to parse arff data. This function will
+    take the .arff file from `path` and extract the target
+    column via `target_index`. By default is set as the
+    last column.
+
+    > path: string. Path to the .arff file.
+
+    > target_index: int. Index of the column in which the
+    target variable lives.
+
+    > returns the data and the target in different variables
+    in ndarray form.
+    '''
+
+    arff_data = arff.loadarff(path)
+    df = pd.DataFrame(arff_data[0])
+    
+    target = df.iloc[:,target_index].to_numpy()
+
+    # Necessary check since df.drop does not admit -1 indexing.
+    if(target_index == -1):
+        data = df[df.iloc[:, :-1]]
+    else:
+        data = df[df.drop(columns=[target_index], axis=1)].to_numpy()
+
+    return data, target
+
+
+
 if __name__ == "__main__":
     # iris = load_iris().data
     # target = load_iris().target
 
 
-    # preprocessing made to data in order 
-    # for the functions to work.
-    # TODO: make a function for this.
-    data = arff.loadarff('data/era.arff')
-    df = pd.DataFrame(data[0])
-    
-    target = df.iloc[:,-1].to_numpy()
-    data = df.iloc[:,:-1].to_numpy()
 
+    data, target = load_arff("data/era.arff", -1)
+    print(data)
 
     models = split_and_train(data, target=target)
 
