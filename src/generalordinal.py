@@ -80,15 +80,15 @@ def predict_ensemble(data_points, labels, models, operator=mul):
 
     > operator: mul or sub. Not passed as string.
     Choose between the operator used since the authors of 
-    the technique released a new paper suggesting the 
-    difference operator, instead of product.
+    the technique released two different papers suggesting the 
+    difference and product operator, with varying results.
     '''
 
-    # Instantiate a new dictionary in which we'll save the final
-    # results.
+    # Instantiate a new dictionary which we'll save the final
+    # results in.
     rows = dict()
 
-    # Special case if theres only 3 labels (and two models) to compute
+    # Special case if there's only 3 labels (and two models) to compute
     if(len(models) == 2):
         # Taking v[:,0] is the same as saying 1-v[:,1] as stated
         # in the original paper, so we just take the first index.
@@ -113,7 +113,7 @@ def predict_ensemble(data_points, labels, models, operator=mul):
         rows.update({labels[-1] : models[-1].predict_proba(data_points)[:,1]})
 
 
-    # create a dataframe with all the probabilities, and 
+    # Create a dataframe with all the probabilities, and 
     # then compute the maximum. idxmax very conveniently
     # returns the column name that was the maximum, instead
     # of the value itself. Then just return it as a ndarray.
@@ -156,7 +156,8 @@ if __name__ == "__main__":
     # target = load_iris().target
 
 
-    data, target = load_arff("data/era.arff", -1)
+    data, target = load_arff("data/era.arff", target_index=-1)
+    print(target)
 
 
     models = split_and_train(data, target=target)
