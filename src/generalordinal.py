@@ -3,14 +3,15 @@ author: Jesús Enrique Cartas Rascón
 repo: https://github.com/jesi-rgb/monotonic-class
 """
 
+import codecs
+from operator import mul, sub
+
 import numpy as np
 import pandas as pd
 from scipy.io import arff
-import codecs
-from operator import mul, sub
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.datasets import load_iris
 
 '''
 Se implementará una función que recibirá un data set 
