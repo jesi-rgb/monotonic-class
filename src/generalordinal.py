@@ -1,3 +1,8 @@
+"""
+author: Jesús Enrique Cartas Rascón
+repo: https://github.com/jesi-rgb/monotonic-class
+"""
+
 import numpy as np
 import pandas as pd
 from scipy.io import arff
