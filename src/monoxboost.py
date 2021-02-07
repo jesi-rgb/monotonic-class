@@ -14,6 +14,58 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
+def split_and_train(data, target=None):
+    '''Define subsets for a given dataset. It figures out
+    how many factors there are in the target value and
+    subsets the original dataset based on that, returning
+    the subsets.
+    
+    > data: the dataset, specifically whithout the labels, and in ndarray form.
+    
+    > target: list for the labels of the data. If none, this function will take
+    the last column of data as the target.
+    
+    > model: model to be used. Not tested for other kinds of models.
+    '''
+
+    # figure out how many factors there are in the target value
+    if(target is None):
+        unique_target = np.unique(data[:,-1])
+    unique_target = np.unique(target)
+
+    # create a list of subsets, for each factor except for
+    # the last one
+    subsets = []
+    for i in range(0, len(unique_target)-1):
+        # binarize each dataset and save it to a list
+        binary_target = np.where(target<=unique_target[i], 0, 1)
+        binary_subset = np.array(list(zip(data, binary_target)), dtype='object')
+        subsets.append(binary_subset)
+
+
+
+    # define parameters for xgboost
+    evallist = [(dtest, 'eval'), (dtrain, 'train')]
+
+    param = {'max_depth': 2, 'eta': 1}
+    param['nthread'] = 4
+    param['tree_method'] = 'exact'
+    param['monotone_constraints'] = "(0, 1)"
+    param['eval_metric'] = 'auc'
+
+    num_round = 10
+    
+    # for each subset we train a model and save it
+    models = []
+    for subset in subsets:
+        X = list(zip(*subset))[0]
+        Y = list(zip(*subset))[1]
+        dtrain = xgb.DMatrix(X, label=Y)
+        bst = xgb.train(param, dtrain, num_round, evallist)
+        models.append(bst)
+
+    # return the list of models trained in each binary subset
+    return models
 
 def load_arff(path, target_index=-1):
     '''
