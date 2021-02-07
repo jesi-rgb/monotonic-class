@@ -45,7 +45,7 @@ def split_and_train(data, target=None):
 
 
     # define parameters for xgboost
-    evallist = [(dtest, 'eval'), (dtrain, 'train')]
+    # evallist = [(dtest, 'eval'), (dtrain, 'train')]
 
     param = {'max_depth': 2, 'eta': 1}
     param['nthread'] = 4
@@ -55,13 +55,14 @@ def split_and_train(data, target=None):
 
     num_round = 10
     
+    
     # for each subset we train a model and save it
     models = []
     for subset in subsets:
-        X = list(zip(*subset))[0]
-        Y = list(zip(*subset))[1]
-        dtrain = xgb.DMatrix(X, label=Y)
-        bst = xgb.train(param, dtrain, num_round, evallist)
+        X = np.array(list(zip(*subset))[0])
+        Y = np.array(list(zip(*subset))[1])
+        dmatrix = xgb.DMatrix(X, label=Y)
+        bst = xgb.train(param, dmatrix, num_round)
         models.append(bst)
 
     # return the list of models trained in each binary subset
@@ -97,22 +98,6 @@ def load_arff(path, target_index=-1):
 
     return data, target
 
-def train_xgboost(data, target):
-    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.33, random_state=42)
-    
-    dtrain = xgb.DMatrix(x_train, label=y_train)
-    dtest = xgb.DMatrix(x_test, label=y_test)
-    evallist = [(dtest, 'eval'), (dtrain, 'train')]
-
-    param = {'max_depth': 2, 'eta': 1, 'objective': 'binary:logistic'}
-    param['nthread'] = 4
-    param['eval_metric'] = 'auc'
-
-    num_round = 10
-    bst = xgb.train(param, dtrain, num_round, evallist)
-
-    return bst
-
 
 if __name__ == "__main__":
     # iris = load_iris().data
@@ -121,4 +106,4 @@ if __name__ == "__main__":
     # load arff data
     data, target = load_arff("data/era.arff", target_index=-1)
     
-    bst = train_xgboost(data, target)
+    models = split_and_train(data, target=target)
