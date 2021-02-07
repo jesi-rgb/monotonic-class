@@ -47,11 +47,10 @@ def split_and_train(data, target=None):
     # define parameters for xgboost
     # evallist = [(dtest, 'eval'), (dtrain, 'train')]
 
-    param = {'max_depth': 2, 'eta': 1}
-    param['nthread'] = 4
+    param = {'max_depth': 5, 'eta': 1}
+    param['nthread'] = 8
     param['tree_method'] = 'exact'
-    param['monotone_constraints'] = "(0, 1)"
-    param['eval_metric'] = 'auc'
+    param['monotone_constraints'] = "1"
 
     num_round = 10
     
