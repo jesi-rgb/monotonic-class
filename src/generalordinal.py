@@ -170,7 +170,7 @@ if __name__ == "__main__":
     models = split_and_train(data, target=target)
 
     # make cascading prediction
-    predictions = predict_ensemble(data, np.unique(target), models, operator=sub)
+    predictions = predict_ensemble(data, np.unique(target), models, operator=mul)
 
     # very basic score measure
     print("Score: right/all answers is {}".format(np.count_nonzero(target == predictions)/len(target)))
